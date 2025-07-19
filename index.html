@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Workers Canvas</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300,400,700&family=Poppins:wght@600,700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #007aff;
+            --background-color: #1a1a1a; /* Dark background for dramatic effect */
+            --card-background: #252525;
+            --text-color: #e0e0e0;
+            --light-text-color: #ffffff;
+            --shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        body {
+            font-family: 'Noto Sans JP', sans-serif;
+            line-height: 1.7;
+            margin: 0;
+            padding: 0;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            overflow-x: hidden;
+            box-shadow: 0 0 100px rgba(0, 122, 255, 0.15);
+        }
+
+        body:not(.modal-is-open) {
+            cursor: none;
+        }
+
+        body:not(.modal-is-open) {
+            cursor: none;
+        }
+
+        body.modal-is-open {
+            overflow: hidden;
+        }
+
+        .mouse-stalker {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            background-color: rgba(255, 0, 0, 0.4);
+            border: 1px solid rgba(255, 0, 0, 0.8);
+            pointer-events: none;
+            transform: translate(-50%, -50%);
+            transition: width 0.4s ease, height 0.4s ease, background-color 0.4s ease, transform 0.1s ease-out;
+            z-index: 9999;
+            backdrop-filter: blur(1px);
+        }
+
+        body.modal-is-open .mouse-stalker {
+            display: none;
+        }
+
+        .hero {
+            background: none; /* Remove background image to focus on the works */
+            text-align: center;
+            padding: 15vh 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .hero h1 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 4.5rem;
+            font-weight: 700;
+            margin: 0;
+            color: var(--light-text-color);
+            letter-spacing: 1px;
+            text-shadow: 0 4px 15px rgba(0, 0, 0, 0.5), 0 0 30px rgba(255, 255, 255, 0.2), 0 0 40px rgba(0, 122, 255, 0.6);
+        }
+
+        .hero p {
+            font-size: 1.3rem;
+            margin-top: 1rem;
+            font-weight: 300;
+            max-width: 650px;
+            color: var(--text-color);
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .showcase-container {
+            width: 90%;
+            max-width: 1600px; /* Wider container */
+            margin: 5rem auto;
+            position: relative;
+            height: 5600px; /* Increased height for more items */
+        }
+
+        .showcase-item {
+            position: absolute;
+            opacity: 0;
+            transform: translateY(60px);
+            transition: opacity 1s cubic-bezier(0.165, 0.84, 0.44, 1), transform 1s cubic-bezier(0.165, 0.84, 0.44, 1);
+            transition-delay: var(--delay, 0s);
+            box-shadow: var(--shadow);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .showcase-item.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .showcase-image-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: block;
+            height: 100%;
+        }
+
+        .showcase-image-wrapper img {
+            width: 100%;
+            height: 115%; /* Slightly larger to allow for movement */
+            object-fit: cover;
+            display: block;
+            transition: transform 0.8s cubic-bezier(0.165, 0.84, 0.44, 1);
+            transform: scale(1.05); /* Initial scale */
+        }
+
+        .showcase-item:hover .showcase-image-wrapper img {
+            transform: scale(1.1);
+        }
+
+        .image-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 60%);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 1.5rem;
+            box-sizing: border-box;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .showcase-item:hover .image-overlay {
+            opacity: 1;
+        }
+
+        .image-overlay h3 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.5rem;
+            color: var(--light-text-color);
+            margin: 0 0 0.5rem 0;
+            transform: translateY(10px);
+            transition: transform 0.5s ease 0.1s;
+        }
+
+        .image-overlay p {
+            font-size: 1rem;
+            margin: 0;
+            color: var(--text-color);
+            transform: translateY(10px);
+            transition: transform 0.5s ease 0.2s;
+        }
+        
+        .showcase-item:hover .image-overlay h3,
+        .showcase-item:hover .image-overlay p {
+            transform: translateY(0);
+        }
+
+        /* Individual item positioning */
+        #item1 { top: 0; left: 5%; width: 35%; height: 600px; --delay: 0s; }
+        #item2 { top: 150px; left: 50%; width: 45%; height: 700px; --delay: 0.2s; }
+        #item3 { top: 700px; left: 0; width: 40%; height: 650px; --delay: 0.1s; }
+        #item4 { top: 950px; left: 45%; width: 35%; height: 550px; --delay: 0.3s; }
+        #item5 { top: 1450px; left: 10%; width: 50%; height: 750px; --delay: 0.2s; }
+        #item6 { top: 1600px; left: 65%; width: 30%; height: 600px; --delay: 0.4s; }
+        #item7 { top: 2250px; left: 0%; width: 38%; height: 500px; --delay: 0.3s; }
+        #item8 { top: 2300px; left: 48%; width: 42%; height: 450px; --delay: 0.5s; }
+        /* New items */
+        #item9 { top: 2800px; left: 55%; width: 40%; height: 680px; --delay: 0.1s; }
+        #item10 { top: 2900px; left: 5%; width: 45%; height: 600px; --delay: 0.3s; }
+        #item11 { top: 3550px; left: 0%; width: 35%; height: 550px; --delay: 0.2s; }
+        #item12 { top: 3600px; left: 40%; width: 50%; height: 720px; --delay: 0.4s; }
+        #item13 { top: 4200px; left: 5%; width: 30%; height: 600px; --delay: 0.3s; }
+        #item14 { top: 4400px; left: 45%; width: 45%; height: 580px; --delay: 0.5s; }
+        #item15 { top: 4850px; left: 15%; width: 40%; height: 700px; --delay: 0.2s; }
+        #item16 { top: 5050px; left: 60%; width: 35%; height: 500px; --delay: 0.4s; }
+
+        footer {
+            text-align: center;
+            padding: 4rem 2rem;
+            font-size: 1rem;
+            color: #888;
+        }
+
+        @media (max-width: 1200px) {
+            .showcase-container { height: auto; position: static; } /* Fallback to static layout on smaller screens */
+            .showcase-item { position: static; width: 90%; margin: 2rem auto; height: auto; float: none; }
+            .showcase-image-wrapper { height: 500px; }
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2.5rem; }
+            .hero p { font-size: 1rem; }
+            .showcase-container { margin-top: 2rem; }
+            .showcase-item { width: 100%; margin-bottom: 2rem; }
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+            cursor: default;
+        }
+
+        .modal-overlay.is-active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background-color: var(--card-background);
+            color: var(--text-color);
+            padding: 2rem;
+            border-radius: 12px;
+            max-width: 800px;
+            width: 90%;
+            box-shadow: var(--shadow);
+            transform: translateY(20px);
+            opacity: 0;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+            position: relative;
+        }
+
+        .modal-overlay.is-active .modal-content {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .modal-close-button {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 2rem;
+            color: var(--text-color);
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .modal-close-button:hover {
+            color: var(--primary-color);
+        }
+
+        .modal-image {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-title {
+            font-family: 'Poppins', sans-serif;
+            font-size: 2rem;
+            color: var(--light-text-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .modal-creator {
+            font-size: 1rem;
+            color: #aaa;
+            margin-bottom: 1rem;
+        }
+
+        .modal-description {
+            font-size: 1.1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-view-more {
+            display: inline-block;
+            background-color: var(--primary-color);
+            color: var(--light-text-color);
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 700;
+            transition: background-color 0.3s ease;
+        }
+
+        .modal-view-more:hover {
+            background-color: #005bb5;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="mouse-stalker"></div>
+
+    <header class="hero">
+        <h1>The Workers Canvas</h1>
+        <p>STUDIO WORKERs（#スタワー） メンバーが生んだ、想像を超えるクリエイティブの数々。<br>スクロールして、お好みの作品をご覧ください。</p>
+    </header>
+
+    <main>
+        <div class="showcase-container">
+            <!-- Existing Items -->
+            <div class="showcase-item" id="item1" data-scroll data-id="item1">
+                <a class="showcase-image-wrapper">
+                    <img src="https://images.unsplash.com/photo-1604147706283-d7119b5b822c?auto=format&fit=crop&w=800&q=80" alt="Abstract web design">
+                    <div class="image-overlay">
+                        <h3>Project Ether</h3>
+                        <p>Created by T. Yamada</p>
+                    </div>
+                </a>
+            </div>
+            <div class="showcase-item" id="item2" data-scroll data-id="item2">
+                <a class="showcase-image-wrapper">
+                    <img src="https://images.unsplash.com/photo-1579546929518-9e396f3cc809?auto=format&fit=crop&w=800&q=80" alt="Gradient in tech">
+                    <div class="image-overlay">
+                        <h3>Aura Landing Page</h3>
+                        <p>Created by H. Sato</p>
+                    </div>
+                </a>
+            </div>
+            <div class="showcase-item" id="item3" data-scroll data-id="item3">
+                <a class="showcase-image-wrapper">
+                    <img src="https://images.unsplash.com/photo-1488972685288-c331b1fc4c5e?auto=format&fit=crop&w=800&q=80" alt="Minimalist architecture">
+                    <div class="image-overlay">
+                        <h3>Monolith CMS</h3>
+                        <p>Created by I. Suzuki</p>
+                    </div>
+                </a>
+            </div>
+            <div class="showcase-item" id="item4" data-scroll data-id="item4">
+                <a class="showcase-image-wrapper">
+                    <img src="https://images.unsplash.com/photo-1534972195531-d756b9bfa9f2?auto=format&fit=crop&w=800&q=80" alt="Dark mode design">
+                    <div class="image-overlay">
+                        <h3>Eclipse E-Commerce</h3>
+                        <p>Created by H. Sato</p>
+                    </div>
+                </a>
+            </div>
+            <div class="showcase-item" id="item5" data-scroll data-id="item5">
+                <a class="showcase-image-wrapper">
+                    <img src="https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?auto=format&fit=crop&w=800&q=80" alt="Nature inspired UI">
+                    <div class="image-overlay">
+                        <h3>Project Gaia</h3>
+                        <p>Created by T. Yamada</p>
+                    </div>
+                </a>
+            </div>
+            <div class="showcase-item" id="item6" data-scroll data-id="item6">
+                <a class="showcase-image-wrapper">
+                    <img src="https://images.unsplash.com/photo-1534796636912-3b95b3ab5986?auto=format&fit=crop&w=800&q=80" alt="Cosmic exploration theme">
+                    <div class="image-overlay">
+                        <h3>Stellar Event Site</h3>
+                        <p>Created by I. Suzuki</p>
+                    </div>
+                </a>
+            </div>
+             <div class="showcase-item" id="item7" data-scroll data-id="item7">
+                <a class="showcase-image-wrapper">
+                    <img src="https://images.unsplash.com/photo-1557682250-33bd709cbe85?auto=format&fit=crop&w=800&q=80" alt="Holographic UI">
+                    <div class="image-overlay">
+                        <h3>Holo-UI Kit</h3>
+                        <p>Created by H. Sato</p>
+                    </div>
+                </a>
+            </div>
+             <div class="showcase-item" id="item8" data-scroll data-id="item8">
+                <a class="showcase-image-wrapper">
+                    <img src="https://images.unsplash.com/photo-1561796432-d65b87133f3a?auto=format&fit=crop&w=800&q=80" alt="Typography art">
+                    <div class="image-overlay">
+                        <h3>Kinetic Type</h3>
+                        <p>Created by T. Yamada</p>
+                    </div>
+                </a>
+            </div>
+            <!-- New Items -->
+            <div class="showcase-item" id="item9" data-scroll data-id="item9">
+                <a class="showcase-image-wrapper">
+                    <img src="https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=800&q=80" alt="Mountain Landscape">
+                    <div class="image-overlay">
+                        <h3>Project Atlas</h3>
+                        <p>Created by A. Tanaka</p>
+                    </div>
+                </a>
+            </div>
+            <div class="showcase-item" id="item10" data-scroll data-id="item10">
+                <a class="showcase-image-wrapper">
+                    <img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80" alt="Forest Path">
+                    <div class="image-overlay">
+                        <h3>Verdant Branding</h3>
+                        <p>Created by M. Watanabe</p>
+                    </div>
+                </a>
+            </div>
+            <div class="showcase-item" id="item11" data-scroll data-id="item11">
+                <a class="showcase-image-wrapper">
+                    <img src="https://images.unsplash.com/photo-1501854140801-50d01698950b?auto=format&fit=crop&w=800&q=80" alt="Lush Valley">
+                    <div class="image-overlay">
+                        <h3>Oasis Platform</h3>
+                        <p>Created by K. Ito</p>
+                    </div>
+                </a>
+            </div>
+            <div class="showcase-item" id="item12" data-scroll data-id="item12">
+                <a class="showcase-image-wrapper">
+                    <img src="https://images.unsplash.com/photo-1559234996-a5b13a4a6bdb?auto=format&fit=crop&w=800&q=80" alt="Abstract Paint">
+                    <div class="image-overlay">
+                        <h3>Fusion Art</h3>
+                        <p>Created by A. Tanaka</p>
+                    </div>
+                </a>
+            </div>
+            <div class="showcase-item" id="item13" data-scroll data-id="item13">
+                <a class="showcase-image-wrapper">
+                    <img src="https://images.unsplash.com/photo-1528459801416-a9e53bbf4e17?auto=format&fit=crop&w=800&q=80" alt="Pastel Colors">
+                    <div class="image-overlay">
+                        <h3>Pastel Dreams</h3>
+                        <p>Created by M. Watanabe</p>
+                    </div>
+                </a>
+            </div>
+            <div class="showcase-item" id="item14" data-scroll data-id="item14">
+                <a class="showcase-image-wrapper">
+                    <img src="https://images.unsplash.com/photo-1541701494587-cb58502866ab?auto=format&fit=crop&w=800&q=80" alt="Colorful Abstract">
+                    <div class="image-overlay">
+                        <h3>Chroma Burst</h3>
+                        <p>Created by K. Ito</p>
+                    </div>
+                </a>
+            </div>
+            <div class="showcase-item" id="item15" data-scroll data-id="item15">
+                <a class="showcase-image-wrapper">
+                    <img src="https://images.unsplash.com/photo-1507525428034-b723a9ce6890?auto=format&fit=crop&w=800&q=80" alt="Beach Aerial View">
+                    <div class="image-overlay">
+                        <h3>Azure Mobile</h3>
+                        <p>Created by T. Yamada</p>
+                    </div>
+                </a>
+            </div>
+            <div class="showcase-item" id="item16" data-scroll data-id="item16">
+                <a class="showcase-image-wrapper">
+                    <img src="https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&w=800&q=80" alt="Misty Lake">
+                    <div class="image-overlay">
+                        <h3>Serenity App</h3>
+                        <p>Created by H. Sato</p>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 STUDIO WORKERs Community Showcase</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const scrollElements = document.querySelectorAll("[data-scroll]");
+
+            if ('IntersectionObserver' in window) {
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add("is-visible");
+                        }
+                    });
+                }, { threshold: 0.1 });
+                scrollElements.forEach(el => observer.observe(el));
+            } else {
+                scrollElements.forEach(el => el.classList.add('is-visible'));
+            }
+
+            const stalker = document.querySelector('.mouse-stalker');
+            if (stalker) {
+                document.addEventListener('mousemove', (e) => {
+                    stalker.style.transform = `translate(${e.clientX}px, ${e.clientY}px)`;
+                });
+                document.querySelectorAll('a, .showcase-item').forEach(el => {
+                    el.addEventListener('mouseenter', () => stalker.classList.add('is-hover'));
+                    el.addEventListener('mouseleave', () => stalker.classList.remove('is-hover'));
+                });
+            }
+
+            const parallaxItems = document.querySelectorAll('.showcase-item');
+            const parallaxHandler = () => {
+                const windowHeight = window.innerHeight;
+                parallaxItems.forEach(item => {
+                    if (item.classList.contains('is-visible')) {
+                        const img = item.querySelector('.showcase-image-wrapper img');
+                        const itemRect = item.getBoundingClientRect();
+                        const itemCenter = itemRect.top + itemRect.height / 2;
+                        const scrollPercent = (itemCenter / windowHeight) * 2 - 1;
+                        const parallaxAmount = scrollPercent * -15; // Adjust -15 for intensity
+                        
+                        let currentScale = 1.05;
+                        if (item.matches(':hover')) {
+                            currentScale = 1.1;
+                        }
+
+                        img.style.transform = `translateY(${parallaxAmount}px) scale(${currentScale})`;
+                    }
+                });
+            };
+
+            window.addEventListener('scroll', () => {
+                window.requestAnimationFrame(parallaxHandler);
+            });
+            window.requestAnimationFrame(parallaxHandler);
+
+            // Works Data
+            const worksData = [
+                {
+                    id: 'item1',
+                    title: 'Project Ether',
+                    creator: 'T. Yamada',
+                    image: 'https://images.unsplash.com/photo-1604147706283-d7119b5b822c?auto=format&fit=crop&w=800&q=80',
+                    description: '抽象的なウェブデザインの概念を探求したプロジェクト。流れるようなUIと直感的なUXが特徴です。',
+                    detailUrl: 'detail-ether.html'
+                },
+                {
+                    id: 'item2',
+                    title: 'Aura Landing Page',
+                    creator: 'H. Sato',
+                    image: 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?auto=format&fit=crop&w=800&q=80',
+                    description: 'グラデーションと光の表現を駆使した、視覚的に魅力的なランディングページ。コンバージョン率向上に貢献します。',
+                    detailUrl: 'detail-aura.html'
+                },
+                {
+                    id: 'item3',
+                    title: 'Monolith CMS',
+                    creator: 'I. Suzuki',
+                    image: 'https://images.unsplash.com/photo-1488972685288-c331b1fc4c5e?auto=format&fit=crop&w=800&q=80',
+                    description: 'ミニマリストな建築からインスパイアされた、堅牢で使いやすいCMS。コンテンツ管理をシンプルにします。',
+                    detailUrl: 'detail-monolith.html'
+                },
+                {
+                    id: 'item4',
+                    title: 'Eclipse E-Commerce',
+                    creator: 'H. Sato',
+                    image: 'https://images.unsplash.com/photo-1534972195531-d756b9bfa9f2?auto=format&fit=crop&w=800&q=80',
+                    description: 'ダークモードを基調とした、洗練されたEコマースサイト。商品の魅力を最大限に引き出します。',
+                    detailUrl: 'detail-eclipse.html'
+                },
+                {
+                    id: 'item5',
+                    title: 'Project Gaia',
+                    creator: 'T. Yamada',
+                    image: 'https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?auto=format&fit=crop&w=800&q=80',
+                    description: '自然から着想を得た、オーガニックなUIデザイン。ユーザーに安らぎと快適な体験を提供します。',
+                    detailUrl: 'detail-gaia.html'
+                },
+                {
+                    id: 'item6',
+                    title: 'Stellar Event Site',
+                    creator: 'I. Suzuki',
+                    image: 'https://images.unsplash.com/photo-1534796636912-3b95b3ab5986?auto=format&fit=crop&w=800&q=80',
+                    description: '宇宙探査をテーマにした、壮大なイベントサイト。訪問者を非日常の世界へ誘います。',
+                    detailUrl: 'detail-stellar.html'
+                },
+                {
+                    id: 'item7',
+                    title: 'Holo-UI Kit',
+                    creator: 'H. Sato',
+                    image: 'https://images.unsplash.com/photo-1557682250-33bd709cbe85?auto=format&fit=crop&w=800&q=80',
+                    description: 'ホログラフィックな表現を取り入れた、未来的なUIキット。次世代のインターフェースを提案します。',
+                    detailUrl: 'detail-holo.html'
+                },
+                {
+                    id: 'item8',
+                    title: 'Kinetic Type',
+                    creator: 'T. Yamada',
+                    image: 'https://images.unsplash.com/photo-1561796432-d65b87133f3a?auto=format&fit=crop&w=800&q=80',
+                    description: 'タイポグラフィをアートとして昇華させた、動きのあるデザイン。メッセージを力強く伝えます。',
+                    detailUrl: 'detail-kinetic.html'
+                },
+                {
+                    id: 'item9',
+                    title: 'Project Atlas',
+                    creator: 'A. Tanaka',
+                    image: 'https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=800&q=80',
+                    description: '山岳風景をモチーフにした、堅牢で信頼性の高いデータ可視化プロジェクト。複雑なデータを直感的に表現します。',
+                    detailUrl: 'detail-atlas.html'
+                },
+                {
+                    id: 'item10',
+                    title: 'Verdant Branding',
+                    creator: 'M. Watanabe',
+                    image: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80',
+                    description: '森の小道からインスパイアされた、自然と調和するブランディングデザイン。企業の持続可能性を表現します。',
+                    detailUrl: 'detail-verdant.html'
+                },
+                {
+                    id: 'item11',
+                    title: 'Oasis Platform',
+                    creator: 'K. Ito',
+                    image: 'https://images.unsplash.com/photo-1501854140801-50d01698950b?auto=format&fit=crop&w=800&q=80',
+                    description: '豊かな谷をイメージした、ユーザーが安らぎを感じるプラットフォームデザイン。コミュニティ形成を促進します。',
+                    detailUrl: 'detail-oasis.html'
+                },
+                {
+                    id: 'item12',
+                    title: 'Fusion Art',
+                    creator: 'A. Tanaka',
+                    image: 'https://images.unsplash.com/photo-1559234996-a5b13a4a6bdb?auto=format&fit=crop&w=800&q=80',
+                    description: '抽象的な絵画から着想を得た、複数のアートスタイルを融合させたデザイン。創造性を刺激します。',
+                    detailUrl: 'detail-fusion.html'
+                },
+                {
+                    id: 'item13',
+                    title: 'Pastel Dreams',
+                    creator: 'M. Watanabe',
+                    image: 'https://images.unsplash.com/photo-1528459801416-a9e53bbf4e17?auto=format&fit=crop&w=800&q=80',
+                    description: 'パステルカラーを基調とした、夢のようなウェブサイトデザイン。優しさと暖かさを表現します。',
+                    detailUrl: 'detail-pastel.html'
+                },
+                {
+                    id: 'item14',
+                    title: 'Chroma Burst',
+                    creator: 'K. Ito',
+                    image: 'https://images.unsplash.com/photo-1541701494587-cb58502866ab?auto=format&fit=crop&w=800&q=80',
+                    description: '鮮やかな色彩が爆発するような、ダイナミックなグラフィックデザイン。視覚的なインパクトを与えます。',
+                    detailUrl: 'detail-chroma.html'
+                },
+                {
+                    id: 'item15',
+                    title: 'Azure Mobile',
+                    creator: 'T. Yamada',
+                    image: 'https://images.unsplash.com/photo-1507525428034-b723a9ce6890?auto=format&fit=crop&w=800&q=80',
+                    description: 'ビーチの空撮からインスパイアされた、爽やかなモバイルアプリデザイン。旅行体験を豊かにします。',
+                    detailUrl: 'detail-azure.html'
+                },
+                {
+                    id: 'item16',
+                    title: 'Serenity App',
+                    creator: 'H. Sato',
+                    image: 'https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&w=800&q=80',
+                    description: '霧深い湖をテーマにした、瞑想とリラクゼーションのためのアプリデザイン。心の平穏をサポートします。',
+                    detailUrl: 'detail-serenity.html'
+                }
+            ];
+
+            // Modal Elements
+            const modalOverlay = document.querySelector('.modal-overlay');
+            const modalImage = document.querySelector('.modal-image');
+            const modalTitle = document.querySelector('.modal-title');
+            const modalCreator = document.querySelector('.modal-creator');
+            const modalDescription = document.querySelector('.modal-description');
+            const modalViewMore = document.querySelector('.modal-view-more');
+            const modalCloseButton = document.querySelector('.modal-close-button');
+
+            // Open Modal Function
+            const openModal = (workId) => {
+                const work = worksData.find(w => w.id === workId);
+                if (work) {
+                    modalImage.src = work.image;
+                    modalImage.alt = work.title;
+                    modalTitle.textContent = work.title;
+                    modalCreator.textContent = `Created by ${work.creator}`;
+                    modalDescription.textContent = work.description;
+                    modalViewMore.href = work.detailUrl;
+                    modalOverlay.classList.add('is-active');
+                    document.body.classList.add('modal-is-open');
+                }
+            };
+
+            // Close Modal Function
+            const closeModal = () => {
+                modalOverlay.classList.remove('is-active');
+                document.body.classList.remove('modal-is-open');
+            };
+
+            // Event Listeners for opening modal
+            parallaxItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    openModal(item.dataset.id);
+                });
+            });
+
+            // Event Listener for closing modal
+            modalCloseButton.addEventListener('click', closeModal);
+            modalOverlay.addEventListener('click', (e) => {
+                if (e.target === modalOverlay) {
+                    closeModal();
+                }
+            });
+
+        });
+    </script>
+
+    <!-- Modal Structure -->
+    <div class="modal-overlay">
+        <div class="modal-content">
+            <button class="modal-close-button">&times;</button>
+            <img src="" alt="" class="modal-image">
+            <h3 class="modal-title"></h3>
+            <p class="modal-creator"></p>
+            <p class="modal-description"></p>
+            <a href="#" class="modal-view-more" target="_blank">View More</a>
+        </div>
+    </div>
+
+</body>
+</html>
