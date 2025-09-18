@@ -361,50 +361,34 @@
                 showcaseContainer.innerHTML = '<p style="text-align: center; color: red;">Error fetching projects. Check console for details.</p>';
             })
 
-            function generateLayoutStyle(index) {
-                // Use different frequencies for more variety
-                const sin_i1 = Math.sin(index * 0.4);
-                const cos_i1 = Math.cos(index * 0.6);
-                const sin_i2 = Math.sin(index * 0.9);
-                const cos_i2 = Math.cos(index * 0.2);
-
-                const width = 25 + (sin_i1 + 1) * 10; // 25% to 45%
-                const height = 350 + (cos_i1 + 1) * 100; // 350px to 550px
-                
-                // --- New Position Logic ---
-                const maxLeft = 100 - width;
-                // Mix different waves for left position
-                const left = Math.abs(sin_i2 * cos_i1) * maxLeft; 
-
-                // Increase the base vertical step to reduce overlap
-                const top = index * 450 + sin_i1 * 50 + cos_i2 * 25; 
-                
-                return {
-                    width: `${width}%`,
-                    height: `${height}px`,
-                    left: `${left}%`,
-                    top: `${top}px`,
-                    zIndex: index
-                };
-            }
-
             function renderShowcase(data) {
                 showcaseContainer.innerHTML = '';
-                let maxBottom = 0;
-
+                let columnHeights = [100, 250]; // Staggered start
+                const columnLefts = [2, 52]; // Left position for each column in %
+                
                 data.forEach((work, index) => {
+                    // 1. Generate random size and gap
+                    const cos_i = Math.cos(index * 0.7);
+                    const width = 35 + Math.random() * 15; // 35% to 50%
+                    const height = 500 + (cos_i + 1) * 125; // 500px to 750px
+                    const verticalGap = 50 + Math.random() * 100; // 50px to 150px
+
+                    // 2. Find the shorter column
+                    const columnIndex = columnHeights[0] <= columnHeights[1] ? 0 : 1;
+
+                    // 3. Create and position the item
                     const item = document.createElement('div');
                     item.className = 'showcase-item';
                     item.dataset.scroll = '';
                     item.dataset.id = work.id;
                     item.style.setProperty('--delay', `${(index % 8) * 0.05}s`);
 
-                    const styles = generateLayoutStyle(index);
-                    item.style.width = styles.width;
-                    item.style.height = styles.height;
-                    item.style.left = styles.left;
-                    item.style.top = styles.top;
-                    item.style.zIndex = styles.zIndex;
+                    // Apply styles
+                    item.style.width = `${width}%`;
+                    item.style.height = `${height}px`;
+                    item.style.top = `${columnHeights[columnIndex]}px`;
+                    item.style.left = `${columnLefts[columnIndex] + (Math.random() - 0.5) * 5}%`; // Re-add jitter
+                    item.style.zIndex = index;
 
                     item.innerHTML = `
                         <a class="showcase-image-wrapper">
@@ -417,15 +401,12 @@
                     `;
                     showcaseContainer.appendChild(item);
 
-                    // Track the max bottom position to set container height
-                    const bottom = parseFloat(styles.top) + parseFloat(styles.height);
-                    if (bottom > maxBottom) {
-                        maxBottom = bottom;
-                    }
+                    // 4. Update the height of the column
+                    columnHeights[columnIndex] += height + verticalGap;
                 });
 
-                // Set the container height
-                showcaseContainer.style.height = `${maxBottom + 100}px`; // Add some padding
+                // Set the container height to the tallest column
+                showcaseContainer.style.height = `${Math.max(...columnHeights)}px`;
             }
 
             function initializeScripts() {
