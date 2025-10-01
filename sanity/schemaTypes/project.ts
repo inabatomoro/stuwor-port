@@ -33,5 +33,15 @@ export default defineType({
       title: 'Detail URL',
       type: 'string',
     }),
+    defineField({
+      name: 'websiteUrl',
+      title: 'Website URL',
+      type: 'url',
+    }),
+    defineField({
+      name: 'creatorUrl',
+      title: 'Creator URL',
+      type: 'url',
+    }),
   ],
 })

@@ -7,7 +7,7 @@ export default defineConfig({
   name: 'default',
   title: 'the_workers_canvas',
 
-  projectId: 'hggrvu5w',
+  projectId: '4n33m7o6',
   dataset: 'production',
 
   plugins: [structureTool(), visionTool()],
