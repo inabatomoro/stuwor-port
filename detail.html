@@ -116,9 +116,10 @@
     <script type="module">
         import { createClient } from 'https://cdn.skypack.dev/@sanity/client';
         import imageUrlBuilder from 'https://cdn.skypack.dev/@sanity/image-url';
+        import { toHTML } from 'https://cdn.skypack.dev/@portabletext/to-html';
 
         const client = createClient({
-            projectId: 'hggrvu5w',
+            projectId: '4n33m7o6',
             dataset: 'production',
             apiVersion: '2024-05-01',
             useCdn: false, // Always get fresh data for details
@@ -132,41 +133,43 @@
         document.addEventListener('DOMContentLoaded', () => {
             const container = document.getElementById('detail-container');
             const params = new URLSearchParams(window.location.search);
-            const projectId = params.get('id');
+            const slug = params.get('slug');
 
-            if (!projectId) {
-                container.innerHTML = '<div class="error">No project ID provided.</div>';
+            if (!slug) {
+                container.innerHTML = '<div class="error">No post slug provided.</div>';
                 return;
             }
 
-            const query = `*[_type == "project" && _id == $projectId][0]{
+            const query = `*[_type == "post" && slug.current == $slug][0]{
                 ...,
-                creator->{name, contactUrl}
+                author->{name}
             }`;
-            const params_query = { projectId };
+            const queryParams = { slug };
 
-            client.fetch(query, params_query).then(project => {
-                if (!project) {
-                    container.innerHTML = '<div class="error">Project not found.</div>';
+            client.fetch(query, queryParams).then(post => {
+                if (!post) {
+                    container.innerHTML = '<div class="error">Post not found.</div>';
                     return;
                 }
 
-                document.title = `${project.title} - The Workers Canvas`;
+                document.title = `${post.title} - The Workers Canvas`;
+
+                const bodyHtml = post.body ? toHTML(post.body) : '';
 
                 container.innerHTML = `
-                    <img src="${project.image ? urlFor(project.image).width(1200).url() : 'https://via.placeholder.com/1200x600.png?text=No+Image'}" alt="${project.title}" class="detail-image">
-                    <h1 class="detail-title">${project.title}</h1>
-                    <p class="detail-creator">Created by ${project.creator ? project.creator.name : 'Unknown'}</p>
-                    <p class="detail-description">${project.description || ''}</p>
+                    <img src="${post.mainImage ? urlFor(post.mainImage).width(1200).url() : 'https://via.placeholder.com/1200x600.png?text=No+Image'}" alt="${post.title}" class="detail-image">
+                    <h1 class="detail-title">${post.title}</h1>
+                    <p class="detail-creator">Created by ${post.author ? post.author.name : 'Unknown'}</p>
+                    <div class="detail-description">${bodyHtml}</div>
                     <a href="index.html" class="back-link">&larr; Back to Showcase</a>
                     <div class="action-buttons">
-                        ${project.websiteUrl ? `<a href="${project.websiteUrl}" class="action-button primary">Visit Website</a>` : ''}
-                        ${project.creator && project.creator.contactUrl ? `<a href="${project.creator.contactUrl}" class="action-button secondary">Contact Creator</a>` : ''}
+                        ${post.websiteUrl ? `<a href="${post.websiteUrl}" class="action-button primary" target="_blank">Visit Website</a>` : ''}
+                    <a href="https://forms.gle/YOUR_GOOGLE_FORM_LINK_HERE" class="action-button secondary" target="_blank">Contact Creator</a>
                     </div>
                 `;
             }).catch(error => {
                 console.error('Error fetching data from Sanity:', error);
-                container.innerHTML = '<div class="error">Failed to load project details. Check the console.</div>';
+                container.innerHTML = '<div class="error">Failed to load post details. Check the console.</div>';
             });
         });
     </script>

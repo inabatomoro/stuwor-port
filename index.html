@@ -323,7 +323,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             // --- Sanity Client Setup ---
             const client = createClient({
-                projectId: 'hggrvu5w',
+                projectId: '4n33m7o6',
                 dataset: 'production',
                 apiVersion: '2024-05-01', // Use a recent date
                 useCdn: true,
@@ -338,20 +338,20 @@
             let worksData = [];
             const showcaseContainer = document.querySelector('.showcase-container');
 
-            const query = '*[_type == "project"]';
-            client.fetch(query).then(projects => {
-                if (!projects || projects.length === 0) {
+            const query = '*[_type == "post"]{_id, title, "slug": slug.current, websiteUrl, mainImage, "authorName": author->name, body}';
+            client.fetch(query).then(posts => {
+                if (!posts || posts.length === 0) {
                     showcaseContainer.innerHTML = '<p style="text-align: center;">No projects found. Please add content in Sanity Studio.</p>';
                     return;
                 }
 
-                worksData = projects.map(p => ({
+                worksData = posts.map(p => ({
                     id: p._id,
                     title: p.title,
-                    creator: p.creator,
-                    image: p.image ? urlFor(p.image).width(800).url() : 'https://via.placeholder.com/800x600.png?text=No+Image',
-                    description: p.description,
-                    detailUrl: p.detailUrl,
+                    creator: p.authorName,
+                    image: p.mainImage ? urlFor(p.mainImage).width(800).url() : 'https://via.placeholder.com/800x600.png?text=No+Image',
+                    description: p.body && p.body[0] && p.body[0].children[0] ? p.body[0].children[0].text : '',
+                    detailUrl: `detail.html?slug=${p.slug}`,
                 }));
 
                 renderShowcase(worksData);
