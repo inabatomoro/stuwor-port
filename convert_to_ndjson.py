@@ -41,6 +41,15 @@ def convert_authors():
 
 
 def convert_posts():
+    # Load scraped data
+    scraped_data = {}
+    try:
+        with open('scraped_data.json', 'r', encoding='utf-8') as f:
+            scraped_data = json.load(f)
+        print("Loaded scraped_data.json.")
+    except FileNotFoundError:
+        print("scraped_data.json not found, proceeding with CSV data only.")
+
     # Load the image asset mapping
     image_mapping = {}
     try:
@@ -54,8 +63,22 @@ def convert_posts():
     with open('posts.csv', 'r', encoding='utf-8') as csvfile:
         reader = csv.DictReader(csvfile)
         for row in reader:
-            title = row['title']
             post_id = row['id']
+            
+            # Start with data from CSV
+            title = row['title']
+            body_text = row['body']
+
+            # Override with scraped data if available
+            if post_id in scraped_data:
+                scraped_post_data = scraped_data[post_id]
+                if 'title' in scraped_post_data:
+                    title = scraped_post_data['title']
+                    print(f"Overriding title for {post_id} with scraped data.")
+                if 'description' in scraped_post_data:
+                    body_text = scraped_post_data['description']
+                    print(f"Overriding body for {post_id} with scraped data.")
+
             post = {
                 '_type': 'post',
                 '_id': post_id,
@@ -73,7 +96,7 @@ def convert_posts():
                     'style': 'normal',
                     'children': [{
                         '_type': 'span',
-                        'text': row['body']
+                        'text': body_text
                     }]
                 }],
                 'websiteUrl': row['Website URL'],
