@@ -18,3 +18,5 @@ __pycache__/
 image_mapping.json
 image_asset_mapping.json
 scraped_data.json
+author_image_asset_mapping.json
+author_image_mapping.json

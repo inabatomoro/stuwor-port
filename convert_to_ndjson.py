@@ -15,15 +15,29 @@ def slugify(text):
     return text
 
 def convert_authors():
+    # Load the author image asset mapping
+    author_image_mapping = {}
+    try:
+        with open('author_image_asset_mapping.json', 'r', encoding='utf-8') as f:
+            author_image_mapping = json.load(f)
+        print("Loaded author image asset mapping.")
+    except FileNotFoundError:
+        print("author_image_asset_mapping.json not found, proceeding without author image data.")
+
     ndjson_authors = []
     with open('authors.csv', 'r', encoding='utf-8') as csvfile:
         reader = csv.DictReader(csvfile)
         for row in reader:
             author_id = f"author-{row['id']}"
+            author_name = row['name']
             author = {
                 '_type': 'author',
                 '_id': author_id,
-                'name': row['name'],
+                'name': author_name,
+                'slug': {
+                    '_type': 'slug',
+                    'current': slugify(author_name)
+                },
                 'bio': [{
                     '_type': 'block',
                     'style': 'normal',
@@ -33,6 +47,12 @@ def convert_authors():
                     }]
                 }]
             }
+
+            # Add author image if it exists in the mapping
+            if author_id in author_image_mapping:
+                author['image'] = author_image_mapping[author_id]
+                print(f"Added image for {author_id}")
+
             ndjson_authors.append(json.dumps(author, ensure_ascii=False))
     
     with open('authors.ndjson', 'w', encoding='utf-8') as f:

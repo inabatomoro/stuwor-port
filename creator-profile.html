@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Project Detail - The Workers Canvas</title>
+    <title>Creator Profile - The Workers Canvas</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300,400,700&family=Poppins:wght@600,700&display=swap" rel="stylesheet">
@@ -32,28 +32,26 @@
             border-radius: 12px;
             box-shadow: var(--shadow);
         }
-        .detail-image {
-            width: 100%;
-            height: 450px;
+        .profile-image {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
             object-fit: cover;
-            border-radius: 8px;
-            margin-bottom: 2rem;
-            background-color: #333;
+            margin: 0 auto 2rem auto;
+            display: block;
+            border: 3px solid var(--primary-color);
         }
-        .detail-title {
+        .profile-name {
             font-family: 'Poppins', sans-serif;
-            font-size: 3rem;
+            font-size: 2.5rem;
             color: var(--light-text-color);
-            margin-bottom: 0.5rem;
+            text-align: center;
+            margin-bottom: 1rem;
         }
-        .detail-creator {
-            font-size: 1.2rem;
-            color: #aaa;
-            margin-bottom: 2rem;
-        }
-        .detail-description {
+        .profile-bio {
             font-size: 1.1rem;
             margin-bottom: 2rem;
+            text-align: center;
         }
         .back-link {
             display: inline-block;
@@ -61,6 +59,7 @@
             text-decoration: none;
             font-weight: 700;
             transition: color 0.3s ease;
+            margin-top: 2rem;
         }
         .back-link:hover {
             color: #005bb5;
@@ -90,17 +89,6 @@
             transform: translateY(-2px);
             box-shadow: 0 8px 20px rgba(0, 122, 255, 0.2);
         }
-        .action-button.secondary {
-            background-color: transparent;
-            color: var(--primary-color);
-            border: 1px solid var(--primary-color);
-        }
-        .action-button.secondary:hover {
-            background-color: var(--primary-color);
-            color: var(--light-text-color);
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(0, 122, 255, 0.15);
-        }
         .loading, .error {
             text-align: center;
             font-size: 1.2rem;
@@ -109,8 +97,8 @@
     </style>
 </head>
 <body>
-    <div class="container" id="detail-container">
-        <div class="loading">Loading project details...</div>
+    <div class="container" id="creator-profile-container">
+        <div class="loading">Loading creator profile...</div>
     </div>
 
     <script type="module">
@@ -131,45 +119,44 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            const container = document.getElementById('detail-container');
+            const container = document.getElementById('creator-profile-container');
             const params = new URLSearchParams(window.location.search);
             const slug = params.get('slug');
 
             if (!slug) {
-                container.innerHTML = '<div class="error">No post slug provided.</div>';
+                container.innerHTML = '<div class="error">No creator slug provided.</div>';
                 return;
             }
 
-            const query = `*[_type == "post" && slug.current == $slug][0]{
-                ...,
-                author->{name, slug}
+            const query = `*[_type == "author" && slug.current == $slug][0]{
+                name,
+                bio,
+                image
             }`;
             const queryParams = { slug };
 
-            client.fetch(query, queryParams).then(post => {
-                if (!post) {
-                    container.innerHTML = '<div class="error">Post not found.</div>';
+            client.fetch(query, queryParams).then(creator => {
+                if (!creator) {
+                    container.innerHTML = '<div class="error">Creator not found.</div>';
                     return;
                 }
 
-                document.title = `${post.title} - The Workers Canvas`;
+                document.title = `${creator.name} Profile - The Workers Canvas`;
 
-                const bodyHtml = post.body ? toHTML(post.body) : '';
+                const bioHtml = creator.bio ? toHTML(creator.bio) : '';
 
                 container.innerHTML = `
-                    <img src="${post.mainImage ? urlFor(post.mainImage).width(1200).url() : 'https://via.placeholder.com/1200x600.png?text=No+Image'}" alt="${post.title}" class="detail-image">
-                    <h1 class="detail-title">${post.title}</h1>
-                    <p class="detail-creator">Created by ${post.author ? post.author.name : 'Unknown'}</p>
-                    <div class="detail-description">${bodyHtml}</div>
-                    <a href="index.html" class="back-link">&larr; Back to Canvas</a>
+                    ${creator.image ? `<img src="${urlFor(creator.image).width(300).height(300).url()}" alt="${creator.name}" class="profile-image">` : ''}
+                    <h1 class="profile-name">${creator.name}</h1>
+                    <div class="profile-bio">${bioHtml}</div>
                     <div class="action-buttons">
-                        ${post.websiteUrl ? `<a href="${post.websiteUrl}" class="action-button primary" target="_blank">Visit Website</a>` : ''}
-                        ${post.author && post.author.slug ? `<a href="creator.html?slug=${post.author.slug.current}" class="action-button secondary">View Creator's Posts</a>` : ''}
+                        <a href="https://forms.gle/YOUR_GOOGLE_FORM_LINK_HERE" class="action-button primary" target="_blank">メッセージを送る</a>
                     </div>
+                    <p style="text-align: center; margin-top: 2rem;"><a href="creator.html?slug=${slug}" class="back-link">&larr; このクリエイターの作品一覧へ</a></p>
                 `;
             }).catch(error => {
                 console.error('Error fetching data from Sanity:', error);
-                container.innerHTML = '<div class="error">Failed to load post details. Check the console.</div>';
+                container.innerHTML = '<div class="error">Failed to load creator profile. Check the console.</div>';
             });
         });
     </script>
