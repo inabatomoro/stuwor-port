@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Workers Canvas</title>
+    <title>Creator's Posts - The Workers Canvas</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300,400,700&family=Poppins:wght@600,700&display=swap" rel="stylesheet">
     <style>
         :root {
             --primary-color: #007aff;
-            --background-color: #1a1a1a; /* Dark background for dramatic effect */
+            --background-color: #1a1a1a;
             --card-background: #252525;
             --text-color: #e0e0e0;
             --light-text-color: #ffffff;
@@ -28,38 +28,10 @@
             box-shadow: 0 0 100px rgba(0, 122, 255, 0.15);
         }
 
-        body:not(.modal-is-open) {
-            cursor: none;
-        }
-
-        body.modal-is-open {
-            overflow: hidden;
-        }
-
-        .mouse-stalker {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 25px;
-            height: 25px;
-            border-radius: 50%;
-            background-color: rgba(0, 122, 255, 0.4);
-            border: 1px solid rgba(0, 122, 255, 0.8);
-            pointer-events: none;
-            transform: translate(-50%, -50%);
-            transition: width 0.4s ease, height 0.4s ease, background-color 0.4s ease, transform 0.1s ease-out;
-            z-index: 9999;
-            backdrop-filter: blur(1px);
-        }
-
-        body.modal-is-open .mouse-stalker {
-            display: none;
-        }
-
         .hero {
             background: none;
             text-align: center;
-            padding: 15vh 20px;
+            padding: 10vh 20px;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -68,7 +40,7 @@
 
         .hero h1 {
             font-family: 'Poppins', sans-serif;
-            font-size: 4.5rem;
+            font-size: 3.5rem;
             font-weight: 700;
             margin: 0;
             color: var(--light-text-color);
@@ -77,7 +49,7 @@
         }
 
         .hero p {
-            font-size: 1.3rem;
+            font-size: 1.1rem;
             margin-top: 1rem;
             font-weight: 300;
             max-width: 650px;
@@ -89,12 +61,11 @@
             width: 90%;
             max-width: 1600px;
             margin: 5rem auto;
-            position: relative; /* For absolute positioning of children */
-            /* Height will be set dynamically by script */
+            position: relative;
         }
 
         .showcase-item {
-            position: absolute; /* Crucial for chaotic layout */
+            position: absolute;
             opacity: 0;
             transform: translateY(60px);
             transition: opacity 1s cubic-bezier(0.165, 0.84, 0.44, 1), transform 1s cubic-bezier(0.165, 0.84, 0.44, 1);
@@ -118,7 +89,7 @@
 
         .showcase-image-wrapper img {
             width: 100%;
-            height: 100%; /* Fill the container perfectly */
+            height: 100%;
             object-fit: cover;
             display: block;
             transition: transform 0.8s cubic-bezier(0.165, 0.84, 0.44, 1);
@@ -184,137 +155,38 @@
             .showcase-container { margin-top: 2rem; }
         }
 
-        /* Modal Styles */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.8);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 10000;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.3s ease, visibility 0.3s ease;
-            cursor: default;
-        }
-
-        .modal-overlay.is-active {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        .modal-content {
-            background-color: var(--card-background);
-            color: var(--text-color);
-            padding: 2rem;
-            border-radius: 12px;
-            max-width: 800px;
-            width: 90%;
-            box-shadow: var(--shadow);
-            transform: translateY(20px);
-            opacity: 0;
-            transition: transform 0.3s ease, opacity 0.3s ease;
-            position: relative;
-        }
-
-        .modal-overlay.is-active .modal-content {
-            transform: translateY(0);
-            opacity: 1;
-        }
-
-        .modal-close-button {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            background: none;
-            border: none;
-            font-size: 2rem;
-            color: var(--text-color);
-            cursor: pointer;
-            transition: color 0.3s ease;
-        }
-
-        .modal-close-button:hover {
-            color: var(--primary-color);
-        }
-
-        .modal-image {
-            width: 100%;
-            height: 300px;
-            object-fit: cover;
-            border-radius: 8px;
-            margin-bottom: 1.5rem;
-        }
-
-        .modal-title {
-            font-family: 'Poppins', sans-serif;
-            font-size: 2rem;
-            color: var(--light-text-color);
-            margin-bottom: 0.5rem;
-        }
-
-        .modal-creator {
-            font-size: 1rem;
-            color: #aaa;
-            margin-bottom: 1rem;
-        }
-
-        .modal-description {
-            font-size: 1.1rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .modal-view-more {
+        .back-to-home {
             display: inline-block;
-            background-color: var(--primary-color);
-            color: var(--light-text-color);
-            padding: 0.8rem 1.5rem;
-            border-radius: 8px;
+            margin-top: 2rem;
+            margin-left: 5%;
+            color: var(--primary-color);
             text-decoration: none;
             font-weight: 700;
-            transition: background-color 0.3s ease;
+            transition: color 0.3s ease;
         }
-
-        .modal-view-more:hover {
-            background-color: #005bb5;
+        .back-to-home:hover {
+            color: #005bb5;
         }
-
     </style>
 </head>
 <body>
 
-    <div class="mouse-stalker"></div>
+    <a href="index.html" class="back-to-home">&larr; Back to All Posts</a>
 
     <header class="hero">
-        <h1>The Workers Canvas</h1>
-        <p>STUDIO WORKERs（#スタワー） メンバーが生んだクリエイティブの数々。<br>スクロールして、お好みの作品をご覧ください。</p>
+        <h1 id="creator-name"></h1>
+        <p>このクリエイターが作成した作品一覧です。</p>
     </header>
 
     <main>
         <div class="showcase-container">
-            <!-- Portfolio items will be dynamically inserted here -->
+            <!-- Creator's portfolio items will be dynamically inserted here -->
         </div>
     </main>
 
     <footer>
         <p>&copy; 2025 STUDIO WORKERs Community Canvas</p>
     </footer>
-
-    <!-- Modal Structure -->
-    <div class="modal-overlay">
-        <div class="modal-content">
-            <button class="modal-close-button">&times;</button>
-            <img src="" alt="" class="modal-image">
-            <h3 class="modal-title"></h3>
-            <p class="modal-creator"></p>
-            <p class="modal-description"></p>
-            <a href="#" class="modal-view-more" target="_blank">View More</a>
-        </div>
-    </div>
 
     <script type="module">
         import { createClient } from 'https://cdn.skypack.dev/@sanity/client';
@@ -325,7 +197,7 @@
             const client = createClient({
                 projectId: '4n33m7o6',
                 dataset: 'production',
-                apiVersion: '2024-05-01', // Use a recent date
+                apiVersion: '2024-05-01',
                 useCdn: true,
             });
 
@@ -337,11 +209,46 @@
             // --- Data Fetching and Rendering ---
             let worksData = [];
             const showcaseContainer = document.querySelector('.showcase-container');
+            const creatorNameElement = document.getElementById('creator-name');
 
-            const query = '*[_type == "post"]{_id, title, "slug": slug.current, websiteUrl, mainImage, "authorName": author->name, body}';
-            client.fetch(query).then(posts => {
+            const params = new URLSearchParams(window.location.search);
+            const creatorSlug = params.get('slug');
+
+            if (!creatorSlug) {
+                showcaseContainer.innerHTML = '<p style="text-align: center;">No creator slug provided.</p>';
+                return;
+            }
+
+            // Fetch creator's name
+            client.fetch(`*[_type == "author" && slug.current == $creatorSlug][0].name`, { creatorSlug })
+                .then(name => {
+                    if (name) {
+                        creatorNameElement.textContent = name;
+                        document.title = `${name}'s Posts - The Workers Canvas`;
+                    } else {
+                        creatorNameElement.textContent = 'Unknown Creator';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching creator name:', error);
+                    creatorNameElement.textContent = 'Error';
+                });
+
+            // Fetch posts by creator
+            const query = `*[_type == "post" && author->slug.current == $creatorSlug]{
+                _id,
+                title,
+                "slug": slug.current,
+                websiteUrl,
+                mainImage,
+                "authorName": author->name,
+                body
+            }`;
+            const queryParams = { creatorSlug };
+
+            client.fetch(query, queryParams).then(posts => {
                 if (!posts || posts.length === 0) {
-                    showcaseContainer.innerHTML = '<p style="text-align: center;">No projects found. Please add content in Sanity Studio.</p>';
+                    showcaseContainer.innerHTML = '<p style="text-align: center;">No posts found for this creator.</p>';
                     return;
                 }
 
@@ -367,31 +274,27 @@
                 const columnLefts = [2, 52]; // Left position for each column in %
                 
                 data.forEach((work, index) => {
-                    // 1. Generate random size and gap
                     const cos_i = Math.cos(index * 0.7);
                     const width = 35 + Math.random() * 15; // 35% to 50%
                     const height = 500 + (cos_i + 1) * 125; // 500px to 750px
                     const verticalGap = 50 + Math.random() * 100; // 50px to 150px
 
-                    // 2. Find the shorter column
                     const columnIndex = columnHeights[0] <= columnHeights[1] ? 0 : 1;
 
-                    // 3. Create and position the item
                     const item = document.createElement('div');
                     item.className = 'showcase-item';
                     item.dataset.scroll = '';
                     item.dataset.id = work.id;
                     item.style.setProperty('--delay', `${(index % 8) * 0.05}s`);
 
-                    // Apply styles
                     item.style.width = `${width}%`;
                     item.style.height = `${height}px`;
                     item.style.top = `${columnHeights[columnIndex]}px`;
-                    item.style.left = `${columnLefts[columnIndex] + (Math.random() - 0.5) * 5}%`; // Re-add jitter
+                    item.style.left = `${columnLefts[columnIndex] + (Math.random() - 0.5) * 5}%`;
                     item.style.zIndex = index;
 
                     item.innerHTML = `
-                        <a class="showcase-image-wrapper">
+                        <a class="showcase-image-wrapper" href="${work.detailUrl}">
                             <img src="${work.image}" alt="${work.title}">
                             <div class="image-overlay">
                                 <h3>${work.title}</h3>
@@ -401,11 +304,9 @@
                     `;
                     showcaseContainer.appendChild(item);
 
-                    // 4. Update the height of the column
                     columnHeights[columnIndex] += height + verticalGap;
                 });
 
-                // Set the container height to the tallest column
                 showcaseContainer.style.height = `${Math.max(...columnHeights)}px`;
             }
 
@@ -423,19 +324,6 @@
                     scrollElements.forEach(el => observer.observe(el));
                 } else {
                     scrollElements.forEach(el => el.classList.add('is-visible'));
-                }
-
-                // --- Mouse Stalker ---
-                const stalker = document.querySelector('.mouse-stalker');
-                if (stalker) {
-                    document.addEventListener('mousemove', (e) => {
-                        stalker.style.transform = `translate(${e.clientX}px, ${e.clientY}px)`;
-                    });
-                    // Re-query for the new items
-                    document.querySelectorAll('a, .showcase-item').forEach(el => {
-                        el.addEventListener('mouseenter', () => stalker.classList.add('is-hover'));
-                        el.addEventListener('mouseleave', () => stalker.classList.remove('is-hover'));
-                    });
                 }
 
                 // --- Parallax Effect ---
@@ -461,78 +349,7 @@
                 };
                 window.addEventListener('scroll', () => window.requestAnimationFrame(parallaxHandler));
                 window.requestAnimationFrame(parallaxHandler);
-
-                // --- Modal Logic ---
-                const modalOverlay = document.querySelector('.modal-overlay');
-                const modalImage = document.querySelector('.modal-image');
-                const modalTitle = document.querySelector('.modal-title');
-                const modalCreator = document.querySelector('.modal-creator');
-                const modalDescription = document.querySelector('.modal-description');
-                const modalViewMore = document.querySelector('.modal-view-more');
-                const modalCloseButton = document.querySelector('.modal-close-button');
-
-                const openModal = (workId) => {
-                    const work = worksData.find(w => w.id === workId);
-                    if (work) {
-                        modalImage.src = work.image;
-                        modalImage.alt = work.title;
-                        modalTitle.textContent = work.title;
-                        modalCreator.textContent = `Created by ${work.creator}`;
-                        modalDescription.textContent = work.description;
-                        modalViewMore.href = work.detailUrl;
-                        modalOverlay.classList.add('is-active');
-                        document.body.classList.add('modal-is-open');
-                    }
-                };
-
-                const closeModal = () => {
-                    modalOverlay.classList.remove('is-active');
-                    document.body.classList.remove('modal-is-open');
-                };
-
-                parallaxItems.forEach(item => {
-                    item.addEventListener('click', () => {
-                        openModal(item.dataset.id);
-                    });
-                });
-
-                modalCloseButton.addEventListener('click', closeModal);
-                modalOverlay.addEventListener('click', (e) => {
-                    if (e.target === modalOverlay) {
-                        closeModal();
-                    }
-                });
             }
-
-            /*
-            // --- Sample Works Data (for reference) ---
-            const sampleWorksData = [
-                {
-                    id: 'item1',
-                    title: 'Project Ether',
-                    creator: 'T. Yamada',
-                    image: 'https://images.unsplash.com/photo-1604147706283-d7119b5b822c?auto=format&fit=crop&w=800&q=80',
-                    description: '抽象的なウェブデザインの概念を探求したプロジェクト。流れるようなUIと直感的なUXが特徴です。',
-                    detailUrl: 'detail-ether.html'
-                },
-                {
-                    id: 'item2',
-                    title: 'Aura Landing Page',
-                    creator: 'H. Sato',
-                    image: 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?auto=format&fit=crop&w=800&q=80',
-                    description: 'グラデーションと光の表現を駆使した、視覚的に魅力的なランディングページ。コンバージョン率向上に貢献します。',
-                    detailUrl: 'detail-aura.html'
-                },
-                {
-                    id: 'item3',
-                    title: 'Monolith CMS',
-                    creator: 'I. Suzuki',
-                    image: 'https://images.unsplash.com/photo-1488972685288-c331b1fc4c5e?auto=format&fit=crop&w=800&q=80',
-                    description: 'ミニマリストな建築からインスパイアされた、堅牢で使いやすいCMS。コンテンツ管理をシンプルにします。',
-                    detailUrl: 'detail-monolith.html'
-                }
-            ];
-            */
         });
     </script>
 

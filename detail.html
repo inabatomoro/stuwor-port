@@ -142,7 +142,7 @@
 
             const query = `*[_type == "post" && slug.current == $slug][0]{
                 ...,
-                author->{name}
+                author->{name, slug}
             }`;
             const queryParams = { slug };
 
@@ -161,10 +161,11 @@
                     <h1 class="detail-title">${post.title}</h1>
                     <p class="detail-creator">Created by ${post.author ? post.author.name : 'Unknown'}</p>
                     <div class="detail-description">${bodyHtml}</div>
-                    <a href="index.html" class="back-link">&larr; Back to Showcase</a>
+                    <a href="index.html" class="back-link">&larr; Back to Canvas</a>
                     <div class="action-buttons">
                         ${post.websiteUrl ? `<a href="${post.websiteUrl}" class="action-button primary" target="_blank">Visit Website</a>` : ''}
-                    <a href="https://forms.gle/YOUR_GOOGLE_FORM_LINK_HERE" class="action-button secondary" target="_blank">Contact Creator</a>
+                        <a href="https://forms.gle/YOUR_GOOGLE_FORM_LINK_HERE" class="action-button secondary" target="_blank">Contact Creator</a>
+                        ${post.author && post.author.slug ? `<a href="creator.html?slug=${post.author.slug.current}" class="action-button secondary">View Creator's Posts</a>` : ''}
                     </div>
                 `;
             }).catch(error => {
