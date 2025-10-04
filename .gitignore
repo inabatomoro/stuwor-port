@@ -10,3 +10,10 @@
 
 # OS generated files
 .DS_Store
+
+# Image processing temporary files
+/tmp_images/
+*.pyc
+__pycache__/
+image_mapping.json
+image_asset_mapping.json

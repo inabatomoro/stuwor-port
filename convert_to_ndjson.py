@@ -41,14 +41,24 @@ def convert_authors():
 
 
 def convert_posts():
+    # Load the image asset mapping
+    image_mapping = {}
+    try:
+        with open('image_asset_mapping.json', 'r', encoding='utf-8') as f:
+            image_mapping = json.load(f)
+        print("Loaded image asset mapping.")
+    except FileNotFoundError:
+        print("image_asset_mapping.json not found, proceeding without image data.")
+
     ndjson_posts = []
     with open('posts.csv', 'r', encoding='utf-8') as csvfile:
         reader = csv.DictReader(csvfile)
         for row in reader:
             title = row['title']
+            post_id = row['id']
             post = {
                 '_type': 'post',
-                '_id': row['id'],
+                '_id': post_id,
                 'title': title,
                 'slug': {
                     '_type': 'slug',
@@ -69,6 +79,12 @@ def convert_posts():
                 'websiteUrl': row['Website URL'],
                 'publishedAt': datetime.utcnow().isoformat() + 'Z'
             }
+
+            # Add mainImage if it exists in the mapping
+            if post_id in image_mapping:
+                post['mainImage'] = image_mapping[post_id]
+                print(f"Added mainImage for {post_id}")
+
             ndjson_posts.append(json.dumps(post, ensure_ascii=False))
 
     with open('posts.ndjson', 'w', encoding='utf-8') as f:
