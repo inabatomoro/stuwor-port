@@ -182,7 +182,38 @@
         @media (max-width: 768px) {
             .hero h1 { font-size: 2.5rem; }
             .hero p { font-size: 1rem; }
-            .showcase-container { margin-top: 2rem; }
+            .showcase-container {
+                margin-top: 2rem;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                position: static; /* Absolute positioning removed for mobile */
+                height: auto !important; /* Override JS calculated height */
+            }
+            .showcase-item {
+                position: static; /* Absolute positioning removed for mobile */
+                width: 90% !important; /* Override JS calculated width */
+                height: auto !important; /* Override JS calculated height */
+                margin-bottom: 20px;
+                transform: none !important; /* Remove JS transform for initial state */
+                opacity: 1 !important; /* Ensure visibility */
+            }
+            .showcase-item.is-visible {
+                transform: none;
+            }
+            .showcase-image-wrapper {
+                height: 250px; /* Fixed height for images on mobile */
+            }
+            .modal-content {
+                width: 95%;
+                padding: 1rem;
+            }
+            .modal-title {
+                font-size: 1.5rem;
+            }
+            .modal-image {
+                height: 200px;
+            }
         }
 
         /* Modal Styles */
