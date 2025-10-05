@@ -154,17 +154,18 @@
             .hero p { font-size: 1rem; }
             .showcase-container {
                 margin-top: 2rem;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                position: static; /* Absolute positioning removed for mobile */
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 20px;
+                position: static; /* Override JS absolute positioning */
                 height: auto !important; /* Override JS calculated height */
+                width: 90%;
             }
             .showcase-item {
-                position: static; /* Absolute positioning removed for mobile */
-                width: 90% !important; /* Override JS calculated width */
-                height: auto !important; /* Override JS calculated height */
-                margin-bottom: 20px;
+                position: static; /* Override JS absolute positioning */
+                width: auto !important; /* Let grid handle width */
+                height: auto !important; /* Let content define height */
+                margin-bottom: 0; /* Gap handled by grid */
                 transform: none !important; /* Remove JS transform for initial state */
                 opacity: 1 !important; /* Ensure visibility */
             }
@@ -172,7 +173,7 @@
                 transform: none;
             }
             .showcase-image-wrapper {
-                height: 250px; /* Fixed height for images on mobile */
+                height: 150px; /* Fixed height for images on mobile in 2 columns */
             }
         }
 
