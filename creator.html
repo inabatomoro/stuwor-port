@@ -336,14 +336,14 @@
 
             function renderShowcase(data) {
                 showcaseContainer.innerHTML = '';
-                let columnHeights = [100, 250]; // Staggered start
+                let columnHeights = [40, 40]; // Staggered start
                 const columnLefts = [2, 50]; // Left position for each column in %
                 
                 data.forEach((work, index) => {
                     const cos_i = Math.cos(index * 0.7);
                     const width = 48; // Unified width for 2 columns
-                    const height = 500 + (cos_i + 1) * 125; // 500px to 750px
-                    const verticalGap = 50 + Math.random() * 100; // 50px to 150px
+                    const height = 300 + (cos_i + 1) * 75; // 300px to 450px
+                    const verticalGap = 40; // Uniform vertical gap
 
                     const columnIndex = columnHeights[0] <= columnHeights[1] ? 0 : 1;
 
