@@ -90,15 +90,12 @@
             width: 90%;
             max-width: 1600px;
             margin: 5rem auto;
-            position: static; /* Disable JS absolute positioning for PC */
-            column-count: 2; /* 2 columns for PC */
-            column-gap: 40px;
-            height: auto !important; /* Override JS calculated height */
+            position: relative; /* For absolute positioning of children */
+            /* Height will be set dynamically by script */
         }
 
         .showcase-item {
-            position: static; /* Disable JS absolute positioning for PC */
-            width: 100% !important; /* Fill column width */
+            position: absolute; /* Crucial for chaotic layout */
             opacity: 0;
             transform: translateY(60px);
             transition: opacity 1s cubic-bezier(0.165, 0.84, 0.44, 1), transform 1s cubic-bezier(0.165, 0.84, 0.44, 1);
@@ -106,8 +103,6 @@
             box-shadow: var(--shadow);
             border-radius: 12px;
             overflow: hidden;
-            margin-bottom: 40px; /* Spacing between items within a column */
-            break-inside: avoid; /* Prevent items from breaking across columns */
         }
 
         .showcase-item.is-visible {
@@ -402,15 +397,14 @@
 
             function renderShowcase(data) {
                 showcaseContainer.innerHTML = '';
-                let columnHeights = [100, 250]; // Staggered start
-                const columnLefts = [2, 52]; // Left position for each column in %
+                let columnHeights = [40, 40]; // Staggered start
+                const columnLefts = [2, 50]; // Left position for each column in %
                 
                 data.forEach((work, index) => {
-                    // 1. Generate random size and gap
                     const cos_i = Math.cos(index * 0.7);
-                    const width = 35 + Math.random() * 15; // 35% to 50%
+                    const width = 48; // Unified width for 2 columns
                     const height = 300 + (cos_i + 1) * 75; // 300px to 450px
-                    const verticalGap = 50 + Math.random() * 100; // 50px to 150px
+                    const verticalGap = 40; // Uniform vertical gap
 
                     // 2. Find the shorter column
                     const columnIndex = columnHeights[0] <= columnHeights[1] ? 0 : 1;
