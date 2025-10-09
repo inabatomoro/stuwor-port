@@ -90,12 +90,15 @@
             width: 90%;
             max-width: 1600px;
             margin: 5rem auto;
-            position: relative; /* For absolute positioning of children */
-            /* Height will be set dynamically by script */
+            position: static; /* Disable JS absolute positioning for PC */
+            column-count: 3; /* 3 columns for PC */
+            column-gap: 20px;
+            height: auto !important; /* Override JS calculated height */
         }
 
         .showcase-item {
-            position: absolute; /* Crucial for chaotic layout */
+            position: static; /* Disable JS absolute positioning for PC */
+            width: 100% !important; /* Fill column width */
             opacity: 0;
             transform: translateY(60px);
             transition: opacity 1s cubic-bezier(0.165, 0.84, 0.44, 1), transform 1s cubic-bezier(0.165, 0.84, 0.44, 1);
@@ -103,6 +106,8 @@
             box-shadow: var(--shadow);
             border-radius: 12px;
             overflow: hidden;
+            margin-bottom: 20px; /* Spacing between items within a column */
+            break-inside: avoid; /* Prevent items from breaking across columns */
         }
 
         .showcase-item.is-visible {
