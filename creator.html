@@ -61,11 +61,12 @@
             width: 90%;
             max-width: 1600px;
             margin: 5rem auto;
-            position: relative;
+            column-count: 2; /* 2 columns for PC */
+            column-gap: 20px;
         }
 
         .showcase-item {
-            position: absolute;
+            width: 100%;
             opacity: 0;
             transform: translateY(60px);
             transition: opacity 1s cubic-bezier(0.165, 0.84, 0.44, 1), transform 1s cubic-bezier(0.165, 0.84, 0.44, 1);
@@ -73,6 +74,8 @@
             box-shadow: var(--shadow);
             border-radius: 12px;
             overflow: hidden;
+            margin-bottom: 60px; /* Spacing between items within a column */
+            break-inside: avoid; /* Prevent items from breaking across columns */
         }
 
         .showcase-item.is-visible {
@@ -336,31 +339,20 @@
 
             function renderShowcase(data) {
                 showcaseContainer.innerHTML = '';
-                let columnHeights = [40, 40]; // Staggered start
-                const columnLefts = [2, 50]; // Left position for each column in %
                 
                 data.forEach((work, index) => {
-                    const cos_i = Math.cos(index * 0.7);
-                    const width = 48; // Unified width for 2 columns
-                    const height = 300 + (cos_i + 1) * 75; // 300px to 450px
-                    const verticalGap = 40; // Uniform vertical gap
-
-                    const columnIndex = columnHeights[0] <= columnHeights[1] ? 0 : 1;
-
                     const item = document.createElement('div');
                     item.className = 'showcase-item';
                     item.dataset.scroll = '';
                     item.dataset.id = work.id;
                     item.style.setProperty('--delay', `${(index % 8) * 0.05}s`);
 
-                    item.style.width = `${width}%`;
-                    item.style.height = `${height}px`;
-                    item.style.top = `${columnHeights[columnIndex]}px`;
-                    item.style.left = `${columnLefts[columnIndex] + (Math.random() - 0.5) * 5}%`;
-                    item.style.zIndex = index;
+                    // Random height for the item
+                    const randomHeight = 300 + Math.random() * 200; // Random height between 300px and 500px
+                    item.style.height = `${randomHeight}px`;
 
                     item.innerHTML = `
-                        <a class="showcase-image-wrapper" href="${work.detailUrl}">
+                        <a class="showcase-image-wrapper">
                             <img src="${work.image}" alt="${work.title}">
                             <div class="image-overlay">
                                 <h3>${work.title}</h3>
@@ -369,11 +361,7 @@
                         </a>
                     `;
                     showcaseContainer.appendChild(item);
-
-                    columnHeights[columnIndex] += height + verticalGap;
                 });
-
-                showcaseContainer.style.height = `${Math.max(...columnHeights)}px`;
             }
 
             function initializeScripts() {
