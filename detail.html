@@ -192,7 +192,7 @@
                     <div class="action-buttons">
                         ${post.websiteUrl ? `<a href="${post.websiteUrl}" class="action-button primary" target="_blank">Visit Website</a>` : ''}
                         ${post.author && post.author.slug ? `<a href="creator.html?slug=${post.author.slug.current}" class="action-button secondary">View Creator's Posts</a>` : ''}
-                        ${post.author && post.author.slug ? `<a href="/stuwor-port/creator-profile.html?slug=${post.author.slug.current}" class="action-button secondary">Contact Creator</a>` : ''}
+                        ${post.author && post.author.slug ? `<a href="creator-profile.html?slug=${post.author.slug.current}" class="action-button primary" target="_blank">Contact Creator</a>` : ''}
                     </div>
                 `;
             }).catch(error => {
