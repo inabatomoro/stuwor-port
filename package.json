@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
+    "dev": "PORT=8000 next dev",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -19,6 +20,9 @@
   "description": "",
   "dependencies": {
     "@sanity/cli": "^4.9.0",
-    "@sanity/client": "^7.11.1"
+    "@sanity/client": "^7.11.1",
+    "next": "^15.5.4",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0"
   }
 }
