@@ -16,19 +16,23 @@ def scrape_website(url):
         req = Request(url, headers=headers)
         with urlopen(req, timeout=10, context=ctx) as response:
             html = response.read().decode('utf-8', errors='ignore')
+            print(f"--- HTML for {url} (first 500 chars): {html[:500]} ---") # Debug print
 
             # Scrape title
             title_match = re.search(r'<title>(.*?)</title>', html, re.IGNORECASE | re.DOTALL)
+            print(f"  > Title match: {title_match}") # Debug print
             if title_match:
                 scraped_data['title'] = title_match.group(1).strip()
 
             # Scrape meta description
             desc_match = re.search(r'<meta\s+name="description"\s+content="([^"]+)"', html, re.IGNORECASE)
+            print(f"  > Description match: {desc_match}") # Debug print
             if desc_match:
                 scraped_data['description'] = desc_match.group(1).strip()
 
             # Scrape og:image
             image_match = re.search(r'<meta\s+(?:property="og:image"|name="og:image")\s+content="([^"]+)"', html, re.IGNORECASE)
+            print(f"  > Image match: {image_match}") # Debug print
             if image_match:
                 scraped_data['image_url'] = image_match.group(1)
 

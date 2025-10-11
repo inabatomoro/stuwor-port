@@ -1,7 +1,7 @@
 id,title,author_id,body,Website URL
-post1,Luna Yoga,11,,https://orange855257.studio.site/
-post2,Tokyo-Architects,10,,https://sample01tokyoarchitects.studio.site/
-post3,Flow Cafe,10,,https://sample02flowcafe.studio.site/
+post1,,11,,https://orange855257.studio.site/
+post2,,10,,https://sample01tokyoarchitects.studio.site/
+post3,,10,,https://sample02flowcafe.studio.site/
 post4,,7,,https://magenta722274.studio.site/
 post5,,10,,https://sample03studiotec.studio.site/
 post6,,16,,https://lumiere-naturel.studio.site/
