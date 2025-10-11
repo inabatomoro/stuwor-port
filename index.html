@@ -183,7 +183,7 @@
         }
 
         @media (max-width: 768px) {
-            .hero h1 { font-size: 2rem; }
+            .hero h1 { font-size: 1.8rem; }
             .hero p { font-size: 1rem; }
             .showcase-container {
                 margin-top: 0.25rem;
@@ -224,7 +224,7 @@
                 padding: 1rem;
             }
             .modal-title {
-                font-size: 1.5rem;
+                font-size: 1.3rem;
             }
             .modal-image {
                 position: relative;
@@ -253,12 +253,14 @@
             background-color: rgba(0, 0, 0, 0.8);
             display: flex;
             justify-content: center;
-            align-items: center;
+            align-items: flex-start; /* Allow content to start from the top */
             z-index: 10000;
             opacity: 0;
             visibility: hidden;
             transition: opacity 0.3s ease, visibility 0.3s ease;
             cursor: default;
+            overflow-y: auto; /* Enable vertical scrolling */
+            padding: 5vh 0; /* Add some padding at the top and bottom */
         }
 
         .modal-overlay.is-active {
