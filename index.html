@@ -106,6 +106,7 @@
             overflow: hidden;
             margin-bottom: 60px; /* Spacing between items within a column */
             break-inside: avoid; /* Prevent items from breaking across columns */
+            cursor: pointer;
         }
 
         .showcase-item.is-visible {
@@ -175,6 +176,10 @@
             transform: translateY(0);
         }
 
+        .showcase-info {
+            display: none;
+        }
+
         footer {
             text-align: center;
             padding: 4rem 2rem;
@@ -199,24 +204,29 @@
                 display: grid;
                 grid-template-columns: 1fr 1fr;
                 gap: 15px;
-                position: static; /* Override JS absolute positioning */
-                height: auto !important; /* Override JS calculated height */
+                position: static;
+                height: auto !important;
                 width: 90%;
             }
             .showcase-item {
-                position: static; /* Override JS absolute positioning */
-                width: auto !important; /* Let grid handle width */
-                height: auto !important; /* Let content define height */
-                margin-bottom: 0; /* Gap handled by grid */
-                transform: none !important; /* Remove JS transform for initial state */
-                opacity: 1 !important; /* Ensure visibility */
+                position: static;
+                width: auto !important;
+                height: auto !important;
+                margin-bottom: 0;
+                transform: none !important;
+                opacity: 1 !important;
+                background-color: var(--card-background);
+                border-radius: 8px;
+                overflow: hidden;
+                display: flex;
+                flex-direction: column;
             }
             .showcase-item.is-visible {
                 transform: none;
             }
             .showcase-image-wrapper {
                 position: relative;
-                padding-top: 56.25%; /* 16:9 Aspect Ratio */
+                padding-top: 56.25%;
                 height: 0;
                 overflow: hidden;
             }
@@ -227,6 +237,33 @@
                 width: 100%;
                 height: 100%;
                 object-fit: cover;
+            }
+            .image-overlay {
+                display: none;
+            }
+            .showcase-info {
+                display: block;
+                padding: 0.75rem;
+            }
+            .showcase-title {
+                font-family: 'Poppins', sans-serif;
+                font-size: 0.9rem;
+                color: var(--light-text-color);
+                margin: 0 0 0.25rem 0;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+            .showcase-description {
+                font-size: 0.8rem;
+                color: var(--text-color);
+                margin: 0;
+                line-height: 1.4;
+                display: -webkit-box;
+                -webkit-line-clamp: 2;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+                text-overflow: ellipsis;
             }
             .modal-content {
                 width: 95%;
@@ -439,13 +476,17 @@
                     item.style.height = `${randomHeight}px`;
 
                     item.innerHTML = `
-                        <a class="showcase-image-wrapper">
+                        <div class="showcase-image-wrapper">
                             <img src="${work.image}" alt="${work.title}">
                             <div class="image-overlay">
                                 <h3>${work.title}</h3>
                                 <p>Created by ${work.creator}</p>
                             </div>
-                        </a>
+                        </div>
+                        <div class="showcase-info">
+                            <h3 class="showcase-title">${work.title}</h3>
+                            <p class="showcase-description">${work.description}</p>
+                        </div>
                     `;
                     showcaseContainer.appendChild(item);
                 });
