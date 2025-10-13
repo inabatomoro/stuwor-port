@@ -87,6 +87,17 @@
             text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
         }
 
+        .visitor-counter {
+            font-size: 1.2rem;
+            color: #aaa;
+            margin-top: 2rem;
+        }
+
+        #counter-number {
+            color: var(--primary-color);
+            font-weight: 700;
+        }
+
         .showcase-container {
             width: 90%;
             max-width: 1600px;
@@ -392,6 +403,7 @@
     <header class="hero">
         <h1>The Workers <span>Canvas</span></h1>
         <p>STUDIO WORKERs（#スタワー） メンバーが生んだクリエイティブの数々。<br>スクロールして、お好みの作品をご覧ください。</p>
+        <p id="visitor-counter" class="visitor-counter">あなたは <span id="counter-number">---</span> 番目の訪問者です。</p>
     </header>
 
     <main>
@@ -617,6 +629,50 @@
             ];
             */
         });
+    </script>
+
+<script type="module">
+      // Import the functions you need from the SDKs you need
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+      import { getFirestore, doc, runTransaction } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+      // Your web app's Firebase configuration
+      const firebaseConfig = {
+        apiKey: "AIzaSyAEhpFzJmPb_wA00zJUmKmA_GBk0k7cF2I",
+        authDomain: "stuwor-portfolio-counter.firebaseapp.com",
+        projectId: "stuwor-portfolio-counter",
+        storageBucket: "stuwor-portfolio-counter.firebasestorage.app",
+        messagingSenderId: "1017843144829",
+        appId: "1:1017843144829:web:48d5aec5a52dd79d9eb914"
+      };
+
+      // Initialize Firebase
+      const app = initializeApp(firebaseConfig);
+      const db = getFirestore(app);
+
+      const counterElement = document.getElementById('counter-number');
+      const counterRef = doc(db, "counters", "visits");
+
+      async function updateCounter() {
+        try {
+          const newCount = await runTransaction(db, async (transaction) => {
+            const counterDoc = await transaction.get(counterRef);
+            if (!counterDoc.exists()) {
+              transaction.set(counterRef, { count: 1 });
+              return 1;
+            }
+            const newCount = counterDoc.data().count + 1;
+            transaction.update(counterRef, { count: newCount });
+            return newCount;
+          });
+          counterElement.textContent = newCount.toLocaleString();
+        } catch (e) {
+          console.error("Transaction failed: ", e);
+          counterElement.textContent = "Error";
+        }
+      }
+
+      updateCounter();
     </script>
 
 </body>
