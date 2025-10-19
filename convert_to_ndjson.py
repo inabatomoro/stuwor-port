@@ -25,10 +25,12 @@ def convert_authors():
         print("author_image_asset_mapping.json not found, proceeding without author image data.")
 
     ndjson_authors = []
+    author_ids = []
     with open('authors.csv', 'r', encoding='utf-8') as csvfile:
         reader = csv.DictReader(csvfile)
         for row in reader:
             author_id = f"author-{row['id']}"
+            author_ids.append(author_id)
             author_name = row['name']
             author = {
                 '_type': 'author',
@@ -58,7 +60,7 @@ def convert_authors():
     with open('authors.ndjson', 'w', encoding='utf-8') as f:
         f.write('\n'.join(ndjson_authors))
     print("authors.ndjson created successfully.")
-
+    return author_ids
 
 def convert_posts():
     # Load scraped data
@@ -80,10 +82,12 @@ def convert_posts():
         print("image_asset_mapping.json not found, proceeding without image data.")
 
     ndjson_posts = []
+    post_ids = []
     with open('posts.csv', 'r', encoding='utf-8') as csvfile:
         reader = csv.DictReader(csvfile)
         for row in reader:
             post_id = row['id']
+            post_ids.append(post_id)
             
             # Start with data from CSV
             title = row['title']
@@ -133,6 +137,7 @@ def convert_posts():
     with open('posts.ndjson', 'w', encoding='utf-8') as f:
         f.write('\n'.join(ndjson_posts))
     print("posts.ndjson created successfully.")
+    return post_ids
 
 if __name__ == '__main__':
     convert_authors()
