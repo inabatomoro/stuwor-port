@@ -4,6 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Project Detail - The Workers Canvas</title>
+    <meta name="description" id="meta-description" content="STUDIO WORKERs（#スタワー）のメンバーが作成したクリエイティブな制作事例の詳細ページです。">
+    <meta name="robots" content="index, follow">
+    <!-- OGP Tags -->
+    <meta property="og:title" id="og-title" content="Project Detail - The Workers Canvas">
+    <meta property="og:description" id="og-description" content="STUDIO WORKERs（#スタワー）のメンバーが作成したクリエイティブな制作事例の詳細ページです。">
+    <meta property="og:image" id="og-image" content="">
+    <meta property="og:type" content="article">
+    <meta property="og:url" id="og-url" content="">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300,400,700&family=Poppins:wght@600,700&display=swap" rel="stylesheet">
@@ -180,7 +188,22 @@
                     return;
                 }
 
-                document.title = `${post.title} - The Workers Canvas`;
+                const pageTitle = `${post.title} - The Workers Canvas`;
+                const pageDescription = post.body && post.body[0] && post.body[0].children[0] 
+                    ? post.body[0].children[0].text.substring(0, 120) + '...' 
+                    : 'STUDIO WORKERsのメンバーが作成したクリエイティブな制作事例の詳細ページです。';
+                const imageUrl = post.mainImage ? urlFor(post.mainImage).width(1200).url() : '';
+                const pageUrl = window.location.href;
+
+                // Update Title
+                document.title = pageTitle;
+
+                // Update Meta Tags
+                document.getElementById('meta-description').setAttribute('content', pageDescription);
+                document.getElementById('og-title').setAttribute('content', pageTitle);
+                document.getElementById('og-description').setAttribute('content', pageDescription);
+                document.getElementById('og-image').setAttribute('content', imageUrl);
+                document.getElementById('og-url').setAttribute('content', pageUrl);
 
                 const bodyHtml = post.body ? toHTML(post.body) : '';
 
