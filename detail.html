@@ -186,6 +186,7 @@
 
             const query = `*[_type == "post" && slug.current == $slug][0]{
                 ...,
+                _createdAt,
                 author->{name, slug}
             }`;
             const queryParams = { slug };
@@ -212,6 +213,31 @@
                 document.getElementById('og-description').setAttribute('content', pageDescription);
                 document.getElementById('og-image').setAttribute('content', imageUrl);
                 document.getElementById('og-url').setAttribute('content', pageUrl);
+
+                // Create and inject JSON-LD schema
+                const schema = {
+                  "@context": "https://schema.org",
+                  "@type": "CreativeWork",
+                  "headline": post.title,
+                  "author": {
+                    "@type": "Person",
+                    "name": post.author ? post.author.name : "Unknown",
+                    "url": post.author && post.author.slug ? `https://www.studio-works.jp/stuwor-port/creator.html?slug=${post.author.slug.current}` : ''
+                  },
+                  "image": imageUrl,
+                  "description": pageDescription,
+                  "url": pageUrl,
+                  "datePublished": post._createdAt
+                };
+
+                let schemaScript = document.getElementById('schema-json');
+                if (!schemaScript) {
+                    schemaScript = document.createElement('script');
+                    schemaScript.id = 'schema-json';
+                    schemaScript.type = 'application/ld+json';
+                    document.head.appendChild(schemaScript);
+                }
+                schemaScript.textContent = JSON.stringify(schema);
 
                 const bodyHtml = post.body ? toHTML(post.body) : '';
 

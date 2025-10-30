@@ -323,6 +323,7 @@
     <script type="module">
         import { createClient } from 'https://cdn.skypack.dev/@sanity/client';
         import imageUrlBuilder from 'https://cdn.skypack.dev/@sanity/image-url';
+        import { toHTML } from 'https://cdn.skypack.dev/@portabletext/to-html';
 
         document.addEventListener('DOMContentLoaded', () => {
             // --- Sanity Client Setup ---
@@ -351,12 +352,35 @@
                 return;
             }
 
-            // Fetch creator's name
-            client.fetch(`*[_type == "author" && slug.current == $creatorSlug][0].name`, { creatorSlug })
-                .then(name => {
-                    if (name) {
-                        creatorNameElement.textContent = name;
-                        document.title = `${name}'s Posts - The Workers Canvas`;
+            // Fetch creator's data
+            client.fetch(`*[_type == "author" && slug.current == $creatorSlug][0]{ name, slug, image, bio }`, { creatorSlug })
+                .then(author => {
+                    if (author) {
+                        creatorNameElement.textContent = author.name;
+                        document.title = `${author.name}'s Posts - The Workers Canvas`;
+
+                        // Create and inject JSON-LD schema
+                        const schema = {
+                          "@context": "https://schema.org",
+                          "@type": "ProfilePage",
+                          "mainEntity": {
+                            "@type": "Person",
+                            "name": author.name,
+                            "url": window.location.href,
+                            "image": author.image ? urlFor(author.image).url() : '',
+                            "description": author.bio ? toHTML(author.bio) : ''
+                          }
+                        };
+
+                        let schemaScript = document.getElementById('schema-json');
+                        if (!schemaScript) {
+                            schemaScript = document.createElement('script');
+                            schemaScript.id = 'schema-json';
+                            schemaScript.type = 'application/ld+json';
+                            document.head.appendChild(schemaScript);
+                        }
+                        schemaScript.textContent = JSON.stringify(schema);
+
                         const creatorActionsDiv = document.getElementById('creator-actions');
                         creatorActionsDiv.innerHTML = `
                             <a href="creator-profile.html?slug=${creatorSlug}" class="action-button primary" target="_blank">Contact Creator</a>
