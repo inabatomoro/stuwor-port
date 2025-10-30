@@ -11,9 +11,9 @@
     <meta property="og:description" id="og-description" content="STUDIO WORKERs（#スタワー）のメンバーが作成したクリエイティブな制作事例の詳細ページです。">
     <meta property="og:image" id="og-image" content="">
     <meta property="og:type" content="article">
-            <meta property="og:url" id="og-url" content="">
-            <!-- Google tag (gtag.js) -->
-            <script async src="https://www.googletagmanager.com/gtag/js?id=G-1CJKERQVPZ"></script>
+                    <meta property="og:url" id="og-url" content="">
+                    <link rel="canonical" id="canonical-link" href="" />
+                    <!-- Google tag (gtag.js) -->            <script async src="https://www.googletagmanager.com/gtag/js?id=G-1CJKERQVPZ"></script>
             <script>
               window.dataLayer = window.dataLayer || [];
               function gtag(){dataLayer.push(arguments);}
@@ -213,6 +213,7 @@
                 document.getElementById('og-description').setAttribute('content', pageDescription);
                 document.getElementById('og-image').setAttribute('content', imageUrl);
                 document.getElementById('og-url').setAttribute('content', pageUrl);
+                document.getElementById('canonical-link').setAttribute('href', pageUrl);
 
                 // Create and inject JSON-LD schema
                 const schema = {

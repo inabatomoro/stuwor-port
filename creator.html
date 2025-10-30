@@ -6,6 +6,7 @@
     <title>Creator's Posts - The Workers Canvas</title>
     <meta name="description" content="The Workers Canvasに参加するクリエイターの制作実績一覧。STUDIOで作成されたユニークなWebサイトやデザインをご覧ください。">
     <meta name="robots" content="index, follow">
+    <link rel="canonical" id="canonical-link" href="" />
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-1CJKERQVPZ"></script>
     <script>
@@ -380,6 +381,9 @@
                             document.head.appendChild(schemaScript);
                         }
                         schemaScript.textContent = JSON.stringify(schema);
+
+                        // Update canonical link
+                        document.getElementById('canonical-link').setAttribute('href', window.location.href);
 
                         const creatorActionsDiv = document.getElementById('creator-actions');
                         creatorActionsDiv.innerHTML = `
