@@ -5,18 +5,21 @@
 /sanity/dist
 /sanity/node_modules
 
+# Next.js
+/.next/
+
 # Temporary files
 *.ndjson
-
-# OS generated files
-.DS_Store
-
-# Image processing temporary files
-/tmp_images/
 *.pyc
 __pycache__/
+/tmp_images/
+
+# Data files (should not be versioned)
 image_mapping.json
 image_asset_mapping.json
 scraped_data.json
 author_image_asset_mapping.json
-author_image_mapping.json\n.next/
+author_image_mapping.json
+
+# OS generated files
+.DS_Store
