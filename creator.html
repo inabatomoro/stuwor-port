@@ -400,7 +400,7 @@
                 });
 
             // Fetch posts by creator
-            const query = `*[_type == "post" && author->slug.current == $creatorSlug]{
+            const query = `*[_type == "post" && !(_id in ["post16", "post18"]) && author->slug.current == $creatorSlug]{
                 _id,
                 title,
                 "slug": slug.current,

@@ -478,7 +478,7 @@
             let worksData = [];
             const showcaseContainer = document.querySelector('.showcase-container');
 
-            const query = '*[_type == "post"]{_id, title, "slug": slug.current, websiteUrl, mainImage, "authorName": author->name, body}';
+            const query = '*[_type == "post" && !(_id in ["post16", "post18"])]{_id, title, "slug": slug.current, websiteUrl, mainImage, "authorName": author->name, body}';
             client.fetch(query).then(posts => {
                 if (!posts || posts.length === 0) {
                     showcaseContainer.innerHTML = '<p style="text-align: center;">No projects found. Please add content in Sanity Studio.</p>';
